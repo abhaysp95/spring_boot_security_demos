@@ -12,7 +12,7 @@
 	<artifactId>spring_security_jdbc</artifactId>
 	<version>0.0.1-SNAPSHOT</version>
 	<name>spring_security_jdbc</name>
-	<description>setup jdbc authentication with spring security</description>
+	<description>jdbc authentication with spring security</description>
 	<properties>
 		<java.version>17</java.version>
 	</properties>
@@ -30,6 +30,12 @@
 			<artifactId>spring-boot-starter-web</artifactId>
 		</dependency>
 
+		<dependency>
+			<groupId>org.springframework.boot</groupId>
+			<artifactId>spring-boot-devtools</artifactId>
+			<scope>runtime</scope>
+			<optional>true</optional>
+		</dependency>
 		<dependency>
 			<groupId>com.h2database</groupId>
 			<artifactId>h2</artifactId>
