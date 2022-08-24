@@ -21,11 +21,6 @@ public class SecurityConfiguration
 	// public InMemoryUserDetailsManager userDetailsService()
 	public UserDetailsService userDetailsService()  // UserDetailsManager is extension of UserDetailsService
 	{
-		/* UserDetails userDetails = User.withDefaultPasswordEncoder()
-			.username("foo")
-			.password("bar")
-			.roles("USER")
-			.build(); */
 
 		UserDetailsManager manager = new InMemoryUserDetailsManager();
 		manager.createUser(User.withUsername("foo")
@@ -61,3 +56,10 @@ public class SecurityConfiguration
 		return http.build();
 	}
 }
+
+
+		/* UserDetails userDetails = User.withDefaultPasswordEncoder()
+			.username("foo")
+			.password("bar")
+			.roles("USER")
+			.build(); */
