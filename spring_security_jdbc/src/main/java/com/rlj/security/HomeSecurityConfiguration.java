@@ -26,7 +26,7 @@ public class HomeSecurityConfiguration
 	{
 		return new EmbeddedDatabaseBuilder()
 			.setType(EmbeddedDatabaseType.H2)
-			.addScript(JdbcDaoImpl.DEFAULT_USER_SCHEMA_DDL_LOCATION)  // database building by retrieving
+			// .addScript(JdbcDaoImpl.DEFAULT_USER_SCHEMA_DDL_LOCATION)  // database building by retrieving
 																	  // users details
 			.build();
 	}
@@ -36,14 +36,14 @@ public class HomeSecurityConfiguration
 	{
 		JdbcUserDetailsManager manager = new JdbcUserDetailsManager(dataSource);
 
-		manager.createUser(User.withUsername("foo")
+		/* manager.createUser(User.withUsername("foo")
 				.password(passwordEncoder().encode("bar"))
 				.roles("USER")
 				.build());
 		manager.createUser(User.withUsername("bar")
 				.password(passwordEncoder().encode("foo"))
 				.roles("ADMIN")
-				.build());
+				.build()); */
 
 		return manager;
 	}
