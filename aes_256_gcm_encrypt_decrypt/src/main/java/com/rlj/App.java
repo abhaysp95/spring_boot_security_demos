@@ -64,7 +64,7 @@ public class App
 			logger.info("you entered: " + str); */
 
 			// to understand below commented block, visit: https://www.baeldung.com/java-string-to-byte-array
-			/* String str = bufferedReader.readLine();
+			String str = bufferedReader.readLine();
 			logger.info("you entered: " + str);
 			logger.info("you entered: " + str.getBytes(charset));
 			// either use String constructor or,
@@ -81,8 +81,9 @@ public class App
 			logger.info("encodeEncrypted: " + encodeEncrypted);
 			byte[] decodeEncrypted = Base64.getDecoder().decode(encodeEncrypted);
 			logger.info("decodeEncrypted: " + encodeEncrypted);
-			String decrypted = aesGcmExample.decrypt(decodeEncrypted, key, IV);
-			logger.info("decrypted: " + decrypted); */
+			byte[] decrypted = aesGcmExample.decrypt(decodeEncrypted, key, IV);
+			logger.info("decrypted: " + decrypted);
+			logger.info("decrypted: " + charset.decode(ByteBuffer.wrap(decrypted)).toString());
 
 			/* String str = bufferedReader.readLine();
 			logger.info("you entered (str): " + str);
