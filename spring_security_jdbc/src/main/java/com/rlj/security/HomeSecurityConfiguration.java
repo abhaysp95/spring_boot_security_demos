@@ -26,6 +26,9 @@ public class HomeSecurityConfiguration
 	{
 		return new EmbeddedDatabaseBuilder()
 			.setType(EmbeddedDatabaseType.H2)
+			/* .addScripts(JdbcDaoImpl.DEF_USERS_BY_USERNAME_QUERY,  // you can pass custom queries here to
+																  // get details too
+					JdbcDaoImpl.DEF_AUTHORITIES_BY_USERNAME_QUERY) */
 			// .addScript(JdbcDaoImpl.DEFAULT_USER_SCHEMA_DDL_LOCATION)  // database building by retrieving
 																	  // users details
 			.build();
@@ -45,6 +48,10 @@ public class HomeSecurityConfiguration
 				.roles("ADMIN")
 				.build()); */
 
+		// if you want to get the details from some other table (or some other custom query)
+		manager.setUsersByUsernameQuery("select username,password,enabled from user_details where username = ?");
+		manager.setAuthoritiesByUsernameQuery("select username,authority from authority_details where username = ?");
+
 		return manager;
 	}
 
@@ -61,8 +68,22 @@ public class HomeSecurityConfiguration
 			.antMatchers("/admin").hasRole("ADMIN")
 			.antMatchers("/user").hasAnyRole("ADMIN", "USER")
 			.antMatchers("/**").permitAll()
-			.and().formLogin()
-			.and().logout().permitAll();
+			.and()
+				.formLogin()
+				/* .loginPage("/login")
+				.loginProcessingUrl("/process-login")
+				.defaultSuccessUrl("/")
+				.failureUrl("/login?errors=true") */
+				.permitAll()
+			.and()
+				.logout()
+				// .logoutSuccessUrl("/login?logout=true")
+				.invalidateHttpSession(true)
+				.deleteCookies("JSESSIONID")
+				.permitAll()
+			.and()
+				.csrf()
+				.disable();
 
 		return http.build();
 	}
