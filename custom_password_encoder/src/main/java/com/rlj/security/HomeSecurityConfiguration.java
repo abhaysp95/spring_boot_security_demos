@@ -52,6 +52,13 @@ public class HomeSecurityConfiguration
 	@Bean
 	public PasswordEncoder passwordEncoder()
 	{
-		return new Argon2PassEncoder();  // custom password encoder
+		int saltLen = 32;
+		int hashLen = 64;
+		int iterations = 10;
+		int memory = 1 << 15; // ~32mb
+		int parallelism = Runtime.getRuntime().availableProcessors();
+
+
+		return new Argon2PassEncoder(saltLen, hashLen, parallelism, memory, iterations);  // custom password encoder
 	}
 }
