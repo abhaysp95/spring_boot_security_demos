@@ -8,20 +8,27 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
+import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.stereotype.Service;
 
 import com.rlj.service.AppUserDetailsService;
 
+@Service
 public class HomeAuthenticationProvider implements AuthenticationProvider
 {
 
 	@Autowired
-	AppUserDetailsService appUserDetailsService;
+	private AppUserDetailsService appUserDetailsService;
+
+	@Autowired
+	private PasswordEncoder passwordEncoder;
 
     @Override
     public Authentication authenticate(Authentication authentication) throws AuthenticationException {
         // TODO Auto-generated method stub
 		String username = (null == authentication.getPrincipal() ? "NONE PROVIDED" : authentication.getName());
-		if (username.isEmpty()) {
+		String password = (null == authentication.getPrincipal() ? "NONE PROVIDED" : authentication.getCredentials().toString());
+		if (username.isEmpty() || password.isEmpty()) {
 			throw new BadCredentialsException("invalid login details");
 		}
 		UserDetails user = null;
@@ -31,20 +38,23 @@ public class HomeAuthenticationProvider implements AuthenticationProvider
 			throw new BadCredentialsException("invalid login details");
 		}
 
-        return createSuccessfulAuthentication(authentication, user);
+        return createSuccessfulAuthentication(authentication, user, password);
     }
 
-	private Authentication createSuccessfulAuthentication(final Authentication authentication, final UserDetails user)
+	private Authentication createSuccessfulAuthentication(final Authentication authentication, final UserDetails user, final String rawPassword)
 	{
-		UsernamePasswordAuthenticationToken token = new UsernamePasswordAuthenticationToken(
-				user.getUsername(), authentication.getCredentials(), authentication.getAuthorities());
-		return token;
+		if (passwordEncoder.matches(rawPassword, user.getPassword())) {
+			UsernamePasswordAuthenticationToken token = new UsernamePasswordAuthenticationToken(
+					user.getUsername(), authentication.getCredentials(), authentication.getAuthorities());
+			return token;
+		}
+		throw new BadCredentialsException("Bad credentials");
 	}
 
     @Override
     public boolean supports(Class<?> authentication) {
         // TODO Auto-generated method stub
-        return true;
+        return UsernamePasswordAuthenticationToken.class.isAssignableFrom(authentication);
     }
 
 }
