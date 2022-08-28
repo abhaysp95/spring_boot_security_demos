@@ -13,6 +13,9 @@ import org.springframework.stereotype.Service;
 
 import com.rlj.service.AppUserDetailsService;
 
+// authentication works, but for some reason routing to endpoint with correct
+// role still gives Whitelabel error page (/error)
+
 @Service
 public class HomeAuthenticationProvider implements AuthenticationProvider
 {

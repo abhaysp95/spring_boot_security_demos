@@ -15,13 +15,22 @@ import com.rlj.service.AppUserDetailsService;
 public class HomeSecurityConfiguration
 {
 
-	@Autowired
-	HomeAuthenticationProvider homeAuthenticationProvider;
+	/* @Autowired
+	HomeAuthenticationProvider homeAuthenticationProvider; */
 
-	@Autowired
+	/* @Autowired
 	public void bindAuthenticationProvider(AuthenticationManagerBuilder auth)
 	{
 		auth.authenticationProvider(homeAuthenticationProvider);
+	} */
+
+	@Autowired
+	AppUserDetailsService appUserDetailsService;
+
+	@Autowired
+	public void bindAuthenticationProvider(AuthenticationManagerBuilder auth) throws Exception
+	{
+		auth.userDetailsService(appUserDetailsService);
 	}
 
 
