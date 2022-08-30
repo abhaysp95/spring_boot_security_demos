@@ -7,10 +7,13 @@ import org.springframework.security.config.annotation.authentication.builders.Au
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.annotation.web.configuration.WebSecurityConfigurerAdapter;
+import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.crypto.password.NoOpPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 
 import com.rlj.service.MyUserDetailsService;
+import com.rlj.util.JwtRequestFilter;
 
 @EnableWebSecurity
 public class DeprecatedSecurityConfiguration extends WebSecurityConfigurerAdapter
@@ -18,6 +21,9 @@ public class DeprecatedSecurityConfiguration extends WebSecurityConfigurerAdapte
 
 	@Autowired
 	private MyUserDetailsService myUserDetailsService;
+
+	@Autowired
+	private JwtRequestFilter jwtRequestFilter;
 
 	@Override
 	public void configure(AuthenticationManagerBuilder auth) throws Exception
@@ -38,7 +44,13 @@ public class DeprecatedSecurityConfiguration extends WebSecurityConfigurerAdapte
 		// authentication mandatory for all endpoints except "/authenticate"
 		http.csrf().disable()
 			.authorizeRequests().antMatchers("/authenticate").permitAll()
-			.anyRequest().authenticated();
+			.anyRequest().authenticated()
+			.and()
+				.sessionManagement()
+				.sessionCreationPolicy(SessionCreationPolicy.STATELESS);
+
+		// register jwtRequestFilter before UsernamePasswordAuthenticationFilter (known filter)
+		http.addFilterBefore(jwtRequestFilter, UsernamePasswordAuthenticationFilter.class);
 	}
 
 	@Bean
