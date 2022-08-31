@@ -92,6 +92,18 @@
 					</excludes>
 				</configuration>
 			</plugin>
+
+			<!-- don't compile files with prefix 'Deprecated' -->
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-compiler-plugin</artifactId>
+				<configuration>
+					<excludes>
+						<exclude>**/security/Deprecated*.java</exclude>
+					</excludes>
+				</configuration>
+			</plugin>
+
 		</plugins>
 	</build>
 
