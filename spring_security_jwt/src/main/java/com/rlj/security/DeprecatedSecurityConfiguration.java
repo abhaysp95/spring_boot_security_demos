@@ -1,4 +1,4 @@
-package com.rlj.security;
+/* package com.rlj.security;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
@@ -58,4 +58,4 @@ public class DeprecatedSecurityConfiguration extends WebSecurityConfigurerAdapte
 	{
 		return NoOpPasswordEncoder.getInstance();
 	}
-}
+} */
