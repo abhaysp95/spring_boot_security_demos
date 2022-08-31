@@ -6,12 +6,20 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.function.Function;
 
+import javax.crypto.SecretKey;
+
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Service;
 
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.SignatureAlgorithm;
+import io.jsonwebtoken.io.Decoders;
+import io.jsonwebtoken.io.Encoders;
+import io.jsonwebtoken.security.Keys;
+
+// go with https://github.com/jwtk/jjwt/issues/617 for any confusion regarding
+// signing of secret key
 
 @Service
 public class JwtUtil
@@ -19,7 +27,22 @@ public class JwtUtil
 
 	// treat the secret key similar to Base64 encoded key if you're using
 	// deprecated overload of setSigningKey()
-	private final String SECRET_KEY = "mypersonalkeywhichshouldbereallyreallyreallylong";
+	// this key *MUST* be a valid key for the signature algorithm found in the JWT header
+	// private final String SECRET_KEY = "mypersonalkeywhichshouldbereallyreallyreallylong";
+
+	// prefer generating secure random secret key instead of a raw one
+
+	// visit: https://github.com/jwtk/jjwt#jws-create-key and
+	// https://github.com/jwtk/jjwt#jws-key-create-secret to learn more
+
+	// generate secret ky
+	SecretKey key = Keys.secretKeyFor(SignatureAlgorithm.HS512);
+	// save the secret key if needed
+
+	// using Encoders from io.jsonwebtoken.io.Encoders (saves the trouble of deciding and using Charset)
+	String secretString = Encoders.BASE64.encode(key.getEncoded());
+	// in general you don't need to perform this step unless you're
+	// transferring (storing) the key for some purpose
 
 	public String extractUsername(String token)
 	{
@@ -40,7 +63,14 @@ public class JwtUtil
 	private Claims extractAllClaims(String token)
 	{
 		// setSigningKey(String) is deprecated
-		return Jwts.parser().setSigningKey(SECRET_KEY).parseClaimsJws(token).getBody();
+		// Jwts.parser().setSigningKey(SECRET_KEY).parseClaimsJws(token).getBody();
+
+		return Jwts.parserBuilder()
+			// JWS = signature(JWT)
+			// consumes JWS
+			.setSigningKey(Keys.hmacShaKeyFor(Decoders.BASE64.decode(secretString)))
+			.build()
+			.parseClaimsJws(token).getBody();
 	}
 
 	private Boolean isTokenExpired(String token)
@@ -54,6 +84,7 @@ public class JwtUtil
 		return createToken(claims, userDetails.getUsername());
 	}
 
+	// produce the JWS
 	private String createToken(Map<String, Object> claims, String subject)
 	{
 		return Jwts.builder().setClaims(claims)
@@ -61,7 +92,15 @@ public class JwtUtil
 			.setIssuedAt(new Date(System.currentTimeMillis()))
 			.setExpiration(new Date(System.currentTimeMillis() * 1000 * 60 * 60 * 10))  // ~10 hours
 			// this overload of signWith() here is deprecated
-			.signWith(SignatureAlgorithm.HS256, SECRET_KEY).compact();
+			// .signWith(SignatureAlgorithm.HS256, SECRET_KEY).compact();
+
+			// using signWith(Key)
+			// hmacShaKeyFor will create a new secret key instance (you don't
+			// need to use decoder if you haven't encoded the secret key)
+			// you can also use overload signWith(Key, SignatureAlgorithm) to
+			// manually provide algorithm but beware of compatibility of
+			// algorithm with (generated) secret key
+			.signWith(Keys.hmacShaKeyFor(Decoders.BASE64.decode(secretString))).compact();
 	}
 
 	public Boolean validateToken(String token, UserDetails userDetails)
